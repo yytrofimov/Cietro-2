@@ -1,0 +1,107 @@
+{% extends 'base_templates/index_template.html' %}
+{% set active_page = "profile" %}
+
+
+{% block content %}
+
+<main class="base-background">
+    <div class="container min-vh-100 p-5">
+        <div class="container-fluid">
+            <div class="row justify-content-center align-self-center my-5">
+                <div class="col-lg my-3">
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    <div class="alert alert-danger" role="alert">
+        
+                        {% for message in messages %}
+                        {{ message }}
+                        {% endfor %}
+                    </div>
+        
+                    {% endif %}
+                    {% endwith %}
+                    <form method="post">
+                        <button type="submit" class="btn btn-danger btn-lg base-common-text" id="logout"
+                            name="submit-button" value="logout-button">Kirjautua ulos</button>
+                    </form>
+                    <p class="base-common-text pt-1">Yrityksen nimi: {{company_name}}</p>
+                    <p class="base-common-text pt-1">Käyttäjän etunimi: {{user_first_name}}</p>
+                    <p class="base-common-text pt-1">Käyttäjätunnus = ID: {{user_id}}</p>
+                    <p class="base-common-text pt-1">Käyttäjän sukunimi: {{user_last_name}}</p>
+                    <p class="base-common-text pt-1">Käyttäjän sähköposti: {{user_email}}</p>
+                    <form method="post">
+                        <div class="form-group">
+                            <label for="inputItemIdToActivate" class="form-label base-common-text">Tuotetunnus = ID</label>
+                            <input type="text" class="form-control" id="inputItemIdToActivate" name="itemid">
+
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="inputActivationCode" class="form-label base-common-text">Aktivointikoodi</label>
+                            <input type="text" class="form-control" id="inputActivationCode" name="activationcode">
+
+                        </div>
+
+                        <div class="form-group my-3">
+                            <button type="submit" class="btn btn-success btn-lg base-common-text" id="activate-item-button"
+                                name="submit-button" value="activateitem-button" disabled>Aktivoi kohde</button>
+                        </div>
+
+                    </form>
+
+                    <form method="post">
+                        <div class="form-group mb-3">
+                            <label for="inputItemIdToDeactivate" class="form-label base-common-text">Tuotetunnus = ID</label>
+                            <input type="text" class="form-control" id="inputItemIdToDeactivate" name="itemid">
+
+                        </div>
+
+                        <div class="form-group my-3">
+                            <button type="submit" class="btn btn-danger btn-lg base-common-text" id="deactivate-item-button"
+                                name="submit-button" value="deactivateitem-button" disabled>Deaktivoi kohde</button>
+                        </div>
+
+                    </form>
+                    
+                </div>
+
+                <div class="col-lg m-3" style="overflow-y: scroll; height: 700px;">
+                    <div>
+                        <p class="base-heading-text pt-2">Yhtiön käyttämättömät tavarat</p>
+                        {% for item in company_items%}
+                        {% if not item.user_id %}
+                        <div class="bg-primary text-white p-2 my-5 rounded shadow-sm">
+                            <p class="base-common-text py-1">Tuotteen nimi: <b style="color: black">{{item.name}}</b></p>
+                            <p class="base-common-text py-1">Tuotetunnus = ID: <b style="color: black">{{item.id}}</b></p>
+                        </div>
+                        {%endif%}
+                        {% endfor %}
+                    </div>
+
+
+                </div>
+                <div class="col-lg m-3" style="overflow-y: scroll; height: 700px;">
+                    <div>
+                        <p class="base-heading-text pt-2">Omat kohteeni</p>
+                        {% for item in company_items%}
+                        {% if  user_id == item.user_id %}
+                        <div class="bg-primary text-white p-2 my-5 rounded shadow-sm">
+                            <p class="base-common-text py-1">Tuotteen nimi: <b style="color: black">{{item.name}}</b></p>
+                            <p class="base-common-text py-1">Tuotetunnus = ID: <b style="color: black">{{item.id}}</b></p>
+                        </div>
+                        {%endif%}
+
+
+                        {% endfor %}
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<script src="{{ url_for('static', filename='js/forms.js')}}"></script>
+
+{% endblock %}

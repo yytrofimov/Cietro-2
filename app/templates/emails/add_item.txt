@@ -1,0 +1,1 @@
+Yrityksen järjestelmänvalvojana lisäsit tällä hetkellä {{current_time}} tuotteen, jonka tunniste on {{item.id}} ja jonka nimi on {{item.name}}. QR -koodi kirjeen liitteenä.

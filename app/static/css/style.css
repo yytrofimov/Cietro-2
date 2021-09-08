@@ -1,0 +1,40 @@
+.base-background {
+    background-image: var(--base-background-gradient);
+    background-size: cover;
+}
+
+.content-background {
+    background-color: var(--base-background-color);
+}
+
+@font-face {
+    font-family: Mayayo;
+    src: url("fonts/mayayo_w00.woff");
+}
+
+.base-heading-text,
+.base-common-text {
+    color: var(--base-text-color);
+    font-family: Mayayo;
+    color: var(--base-text-color);
+}
+
+.base-heading-text {
+    font-size: var(--base-heading-text-size);
+}
+
+.base-common-text {
+    font-size: var(--base-common-text-size);
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+.nounderline {
+    text-decoration: none !important;
+}
+
+.baseHoverChange:hover {
+    color: gray !important;
+}

@@ -1,0 +1,51 @@
+{% extends 'base_templates/auth_template.html' %}
+
+{% block title %}Cierto-2{% endblock %}
+
+{% block form %}
+
+
+<form method="post">
+    <div class="form-group">
+        <label for="inputFirstName" class="form-label base-common-text">Etunimi</label>
+        <input type="text" class="form-control" id="inputFirstName" name="firstname">
+    </div>
+    <div class="form-group">
+        <label for="inputLastName" class="form-label base-common-text">Sukunimi</label>
+        <input type="text" class="form-control" id="inputLastName" name="lastname">
+    </div>
+
+
+    <div class="form-group">
+        <label for="inputEmail" class="form-label base-common-text">Sähköposti</label>
+        <input type="email" class="form-control" id="inputEmail" aria-describedby="emailHelp" name="email">
+    </div>
+
+
+    <div class="form-group">
+        <label for="inputPassword" class="form-label base-common-text">Salasana</label>
+        <input type="password" class="form-control" id="inputPassword" name="password">
+    </div>
+
+    <div class="form-group">
+        <label for="inputPasswordRetype" class="form-label base-common-text">Salasana uudestaan</label>
+        <input type="password" class="form-control" id="inputPasswordRetype" name="passwordretype">
+
+    </div>
+
+
+    <div class="form-group mb-5">
+        <label for="inputCompanyId" class="form-label base-common-text">Yrityskoodi</label>
+        <input type="text" class="form-control" id="inputCompanyId" name="companyid">
+    </div>
+
+
+    <div class="form-group my-5">
+        <button type="submit" class="btn btn-dark btn-lg base-common-text" id="register-button" name="submit-button"
+            value="register-button" disabled>Luo
+            käyttäjä</button>
+    </div>
+</form>
+
+
+{% endblock %}

@@ -1,0 +1,8 @@
+:root {
+    --base-background-color: #4b4998;
+    --base-text-color: #f6f6f6;
+    --base-wrapper-color: #5555ff;
+    --base-heading-text-size: 30px;
+    --base-common-text-size: 20px;
+    --base-background-gradient: linear-gradient(to right top, #786eb3, #685ab6, #5746b8, #4430b9, #2b14b9);
+}
