@@ -6,28 +6,30 @@
 {% block form %}
 
 
-<form method="post">
-    <div class="form-group">
-        <label for="inputEmail" class="form-label base-common-text">Sähköposti</label>
-        <input type="email" class="form-control" id="inputEmail" aria-describedby="emailHelp" name="email">
-    </div>
-    <div class="form-group mb-5">
-        <label for="inputPassword" class="form-label base-common-text">Salasana</label>
-        <input type="password" class="form-control" id="inputPassword" name="password">
-        <small id="passwordHelp" class="form-text text-muted">
-            <a href="{{ url_for('forgot_password')}}" class="base-common-text nounderline">
-                <p class="baseHoverChange my-3">
-                    Unohditko salasanan?
-                </p>
-            </a>
-        </small>
+    <form method="post">
+        <div class="form-group">
+            <label for="inputEmail" class="form-label base-common-text">Sähköposti</label>
+            <input type="email" class="form-control" id="inputEmail" aria-describedby="emailHelp" name="email">
+        </div>
+        <div class="form-group mb-5">
+            <label for="inputPassword" class="form-label base-common-text">Salasana</label>
+            <input type="password" class="form-control" id="inputPassword" name="password">
+            <small id="passwordHelp" class="form-text text-muted">
+                <a href="{{ url_for('forgot_password') }}" class="base-common-text nounderline">
+                    <p class="baseHoverChange my-3">
+                        Unohditko salasanan?
+                    </p>
+                </a>
+            </small>
 
-    </div>
+        </div>
 
-    <div class="form-group my-5">
-        <button type="submit" class="btn btn-dark btn-lg base-common-text" id="login-button" name="submit-button" value = "login-button" disabled>Kirjaudu</button>
-    </div>
-</form>
+        <div class="form-group my-5">
+            <button type="submit" class="btn btn-dark btn-lg base-common-text" id="login-button" name="submit-button"
+                    value="login-button" disabled>Kirjaudu
+            </button>
+        </div>
+    </form>
 
 
 {% endblock %}

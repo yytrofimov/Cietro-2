@@ -119,31 +119,31 @@ def profile():
             item = Item.get(item_id)
             if not item:
                 flash('No such item')
-                return(redirect(url_for('profile')))
+                return (redirect(url_for('profile')))
             try:
                 item.deactivate(session['user_id'])
             except e.NoEnoughRigths:
                 flash('Ei oikeuksia')
-                return(redirect(url_for('profile')))
+                return (redirect(url_for('profile')))
             except e.ItemNotInUse:
                 flash('Tuote ei ole käytössä! Käytä vain sitä')
-                return(redirect(url_for('profile')))
+                return (redirect(url_for('profile')))
         if request.form['submit-button'] == 'activateitem-button':
             item_id = request.form.get('itemid')
             activation_code = request.form.get('activationcode')
             item = Item.get(item_id)
             if not item:
                 flash('Ei sellaista kohdetta')
-                return(redirect(url_for('profile')))
+                return (redirect(url_for('profile')))
             try:
                 item.activate(
                     user_id=session['user_id'], activation_code=activation_code)
             except e.ItemInUse:
                 flash('Tuote käytössä')
-                return(redirect(url_for('profile')))
+                return (redirect(url_for('profile')))
             except e.IncorrectActivationCode:
                 flash('Väärä aktivointikoodi')
-                return(redirect(url_for('profile')))
+                return (redirect(url_for('profile')))
         return redirect(url_for('profile'))
 
 

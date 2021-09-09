@@ -4,92 +4,104 @@
 
 {% block content %}
 
-<main class="base-background">
-    <div class="container min-vh-100 p-5">
-        <div class="container-fluid">
-            <div class="row justify-content-center align-self-center my-5">
-                <div class="col-lg my-3">
-                    {% with messages = get_flashed_messages() %}
-                    {% if messages %}
-                    <div class="alert alert-danger" role="alert">
-        
-                        {% for message in messages %}
-                        {{ message }}
-                        {% endfor %}
-                    </div>
-        
-                    {% endif %}
-                    {% endwith %}
-                    <form method="post">
-                        <button type="submit" class="btn btn-danger btn-lg base-common-text" id="logout"
-                            name="submit-button" value="logout-button">Kirjautua ulos</button>
-                    </form>
-                    <p class="base-common-text pt-2">Yrityksen nimi: {{company_name}}</p>
-                    <p class="base-common-text pt-2">Yritystunnus = ID: {{company_id}}</p>
-                    <p class="base-common-text pt-2">Yritys osoite: {{company_address}}</p>
-                    <p class="base-common-text pt-2">Yrityksen rekisterinumero = Y-tunnus: {{company_reg_number}}</p>
-                    <p class="base-common-text pt-2">Kohteita yhteensä: {{company_total_items}}</p>
-                    <form method="post">
-                        <div class="form-group mb-3">
-                            <label for="inputItemNameToAdd" class="form-label base-common-text">Tuotteen nimi</label>
-                            <input type="text" class="form-control" id="inputItemNameToAdd" name="itemname">
-                            
-                        </div>
+    <main class="base-background">
+        <div class="container min-vh-100 p-5">
+            <div class="container-fluid">
+                <div class="row justify-content-center align-self-center my-5">
+                    <div class="col-lg my-3">
+                        {% with messages = get_flashed_messages() %}
+                            {% if messages %}
+                                <div class="alert alert-danger" role="alert">
 
-                        <div class="form-group my-3">
-                            <button type="submit" class="btn btn-success btn-lg base-common-text" id="add-item-button"
-                            name="submit-button" value="additem-button" disabled>Lisää tavara</button>
-                        </div>
-                        
-                    </form>
+                                    {% for message in messages %}
+                                        {{ message }}
+                                    {% endfor %}
+                                </div>
 
-                    <form method="post">
-                        <div class="form-group mb-3">
-                            <label for="inputItemIdToDelete" class="form-label base-common-text">Tuotetunnus = ID</label>
-                            <input type="text" class="form-control" id="inputItemIdToDelete" name="itemid">
-                            
-                        </div>
+                            {% endif %}
+                        {% endwith %}
+                        <form method="post">
+                            <button type="submit" class="btn btn-danger btn-lg base-common-text" id="logout"
+                                    name="submit-button" value="logout-button">Kirjautua ulos
+                            </button>
+                        </form>
+                        <p class="base-common-text pt-2">Yrityksen nimi: {{ company_name }}</p>
+                        <p class="base-common-text pt-2">Yritystunnus = ID: {{ company_id }}</p>
+                        <p class="base-common-text pt-2">Yritys osoite: {{ company_address }}</p>
+                        <p class="base-common-text pt-2">Yrityksen rekisterinumero =
+                            Y-tunnus: {{ company_reg_number }}</p>
+                        <p class="base-common-text pt-2">Kohteita yhteensä: {{ company_total_items }}</p>
+                        <form method="post">
+                            <div class="form-group mb-3">
+                                <label for="inputItemNameToAdd" class="form-label base-common-text">Tuotteen
+                                    nimi</label>
+                                <input type="text" class="form-control" id="inputItemNameToAdd" name="itemname">
 
-                        <div class="form-group my-3">
-                            <button type="submit" class="btn btn-danger btn-lg base-common-text" id="delete-item-button"
-                            name="submit-button" value="deleteitem-button" disabled>Poista kohde</button>
-                        </div>
-                        
-                    </form>
-                   
-                </div>
+                            </div>
 
-                <div class="col-lg m-3" style="overflow-y: scroll; height: 700px;">
-                    <div>
-                        <p class="base-heading-text pt-2">Yrityksen tuotteet</p>
-                    {% for item in company_items%}
-                    <div class="bg-primary text-white p-2 my-5 rounded shadow-sm">
-                        <p class="base-common-text py-1">Tuotteen nimi: <b style="color: black">{{item.name}}</b></p>
-                        <p class="base-common-text py-1">Tuotetunnus = ID: <b style="color: black">{{item.id}}</b></p>
-                        <p class="base-common-text py-1">Kohteen aktivointikoodi: <b style="color: black">{{item.activation_code}}</b></p>
-                        {% if not item.user_id %}
-                        <p class="base-common-text py-1" style="color: black">Vapaa</p>
-    
-                        {%endif%}
-                        {% if item.user_id%}
-                        <p class="base-common-text py-1" style="color:red">Käyttäjä numero: <b>{{item.user_id}}</b></p>
-    
-                        {%endif%}
+                            <div class="form-group my-3">
+                                <button type="submit" class="btn btn-success btn-lg base-common-text"
+                                        id="add-item-button"
+                                        name="submit-button" value="additem-button" disabled>Lisää tavara
+                                </button>
+                            </div>
+
+                        </form>
+
+                        <form method="post">
+                            <div class="form-group mb-3">
+                                <label for="inputItemIdToDelete" class="form-label base-common-text">Tuotetunnus =
+                                    ID</label>
+                                <input type="text" class="form-control" id="inputItemIdToDelete" name="itemid">
+
+                            </div>
+
+                            <div class="form-group my-3">
+                                <button type="submit" class="btn btn-danger btn-lg base-common-text"
+                                        id="delete-item-button"
+                                        name="submit-button" value="deleteitem-button" disabled>Poista kohde
+                                </button>
+                            </div>
+
+                        </form>
 
                     </div>
-                    
 
-                    {% endfor %}
+                    <div class="col-lg m-3" style="overflow-y: scroll; height: 700px;">
+                        <div>
+                            <p class="base-heading-text pt-2">Yrityksen tuotteet</p>
+                            {% for item in company_items %}
+                                <div class="bg-primary text-white p-2 my-5 rounded shadow-sm">
+                                    <p class="base-common-text py-1">Tuotteen nimi: <b
+                                            style="color: black">{{ item.name }}</b></p>
+                                    <p class="base-common-text py-1">Tuotetunnus = ID: <b
+                                            style="color: black">{{ item.id }}</b></p>
+                                    <p class="base-common-text py-1">Kohteen aktivointikoodi: <b
+                                            style="color: black">{{ item.activation_code }}</b></p>
+                                    {% if not item.user_id %}
+                                        <p class="base-common-text py-1" style="color: black">Vapaa</p>
+
+                                    {% endif %}
+                                    {% if item.user_id %}
+                                        <p class="base-common-text py-1" style="color:red">Käyttäjä numero:
+                                            <b>{{ item.user_id }}</b></p>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                            {% endfor %}
+                        </div>
+
+
                     </div>
-                    
-
                 </div>
             </div>
         </div>
-    </div>
 
-</main>
-<script src="{{ url_for('static', filename='js/forms.js')}}"></script>
+    </main>
+    <script src="{{ url_for('static', filename='js/forms.js') }}"></script>
 
 
 

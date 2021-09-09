@@ -2,34 +2,34 @@
 
 {% block content %}
 
-<main class="base-background">
+    <main class="base-background">
         <div class="container d-flex flex-column justify-content-center min-vh-100 p-5">
             <div class="row p-5">
                 <div class="col-md justify-content-center align-self-center">
-                    <a href={{url_for('index')}}>
-                        <img class="img-fluid" src="{{ url_for('static', filename='img/logo_1.png')}}" alt="Logo pic">
+                    <a href={{ url_for('index') }}>
+                        <img class="img-fluid" src="{{ url_for('static', filename='img/logo_1.png') }}" alt="Logo pic">
                     </a>
                 </div>
                 <div class="col-md justify-content-center align-self-center">
                     {% block form %}
                     {% endblock %}
                     {% with messages = get_flashed_messages() %}
-                    {% if messages %}
-                    <div class="alert alert-danger" role="alert">
-        
-                        {% for message in messages %}
-                        {{ message }}
-                        {% endfor %}
-                    </div>
-        
-                    {% endif %}
+                        {% if messages %}
+                            <div class="alert alert-danger" role="alert">
+
+                                {% for message in messages %}
+                                    {{ message }}
+                                {% endfor %}
+                            </div>
+
+                        {% endif %}
                     {% endwith %}
                 </div>
             </div>
         </div>
-</main>
+    </main>
 
-<script src="{{ url_for('static', filename='js/forms.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/forms.js') }}"></script>
 
 
 {% endblock %}

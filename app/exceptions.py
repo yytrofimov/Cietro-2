@@ -37,12 +37,14 @@ class IncorrectToken(Exception):
 class ItemDoesntExist(Exception):
     pass
 
+
 class ItemInUse(Exception):
     pass
 
 
 class IncorrectActivationCode(Exception):
     pass
+
 
 class NoEnoughRigths(Exception):
     pass
@@ -51,8 +53,10 @@ class NoEnoughRigths(Exception):
 class ItemNotInUse(Exception):
     pass
 
+
 class TokenExpired(Exception):
     pass
+
 
 class WrongType(Exception):
     pass

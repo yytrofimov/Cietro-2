@@ -4,12 +4,12 @@ from __init__ import *
 def send_password_reset_email(user):
     token = user.get_reset_password_token()
     msg = Message('CIERTO-2: Nollaa salasana',
-               sender="yytrofimov@yandex.ru",
-               recipients=[user.email])
+                  sender="yytrofimov@yandex.ru",
+                  recipients=[user.email])
     msg.body = render_template('emails/password_reset.txt',
-                                         user=user, token=token)
+                               user=user, token=token)
     msg.html = render_template('emails/password_reset.html',
-                                         user=user, token=token)
+                               user=user, token=token)
     mail.send(msg)
 
 

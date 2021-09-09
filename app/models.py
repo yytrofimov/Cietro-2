@@ -1,6 +1,5 @@
 from __init__ import *
 
-
 db.metadata.clear()
 
 
@@ -62,7 +61,7 @@ class User(db.Model):
         return Item.get_user_items(self.id)
 
     def __str__(self):
-        return("\n".join(self.first_name, self.last_name, self.email, self.company_id, self.status))
+        return ("\n".join(self.first_name, self.last_name, self.email, self.company_id, self.status))
 
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(
@@ -223,7 +222,7 @@ class InviteCode(db.Model):
         return ''.join(random.choice(chars) for _ in range(size))
 
     @classmethod
-    def add(cls, company_reg_number: str):    
+    def add(cls, company_reg_number: str):
         code = InviteCode(code=InviteCode.code_generator(),
                           company_reg_number=company_reg_number)
         if cls.validate_attrs(reg_number=company_reg_number):
@@ -235,12 +234,5 @@ class InviteCode(db.Model):
 
 db.create_all()
 
-
 if __name__ == "__main__":
-    invite_code = InviteCode.add("Y-1234567-2")
-    print(invite_code.code)
-    invite_code = InviteCode.add("Y-1234567-3")
-    print(invite_code.code)
-    invite_code = InviteCode.add("Y-1234567-4")
-    print(invite_code.code)
     pass
