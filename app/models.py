@@ -61,7 +61,7 @@ class User(db.Model):
         return Item.get_user_items(self.id)
 
     def __str__(self):
-        return ("\n".join(self.first_name, self.last_name, self.email, self.company_id, self.status))
+        return "\n".join([self.first_name, self.last_name, self.email, self.company_id, self.status])
 
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(
@@ -149,7 +149,8 @@ class Item(db.Model):
         if item:
             return item
 
-    def validate_attrs(company_id: int = None, user_id: int = None):
+    @classmethod
+    def validate_attrs(cls, company_id: int = None, user_id: int = None):
         if company_id and not Company.get(id=company_id):
             raise e.CompanyDoesntExist
         if user_id and not User.get(id=user_id):
