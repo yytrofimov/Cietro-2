@@ -77,10 +77,10 @@ def reset_password(token):
         user = User.verify_reset_password_token(token)
         session['user_id'] = user.id
     except e.TokenExpired:
-        flash('Token expired')
+        flash('Tunnus vanhentunut')
         return redirect(url_for('forgot_password'))
     except e.IncorrectToken:
-        flash('Invalid token')
+        flash('Virheellinen merkki')
         return redirect(url_for('forgot_password'))
     if request.method == "GET":
         return render_template('reset_password.html')
