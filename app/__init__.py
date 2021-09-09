@@ -16,6 +16,7 @@ import qr
 from dotenv import load_dotenv
 import os
 import sys
+from flask_wtf.csrf import CSRFProtect
 
 load_dotenv('.env')
 
@@ -41,6 +42,7 @@ app.jinja_env.filters['zip'] = zip
 db = SQLAlchemy(app)
 cache = Cache(app)
 mail = Mail(app)
+csrf = CSRFProtect().init_app(app)
 import mailer
 
 from controller import *

@@ -24,6 +24,7 @@
                             <button type="submit" class="btn btn-danger btn-lg base-common-text" id="logout"
                                     name="submit-button" value="logout-button">Kirjautua ulos
                             </button>
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         </form>
                         <p class="base-common-text pt-2">Yrityksen nimi: {{ company_name }}</p>
                         <p class="base-common-text pt-2">Yritystunnus = ID: {{ company_id }}</p>
@@ -45,7 +46,7 @@
                                         name="submit-button" value="additem-button" disabled>Lisää tavara
                                 </button>
                             </div>
-
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         </form>
 
                         <form method="post">
@@ -62,7 +63,7 @@
                                         name="submit-button" value="deleteitem-button" disabled>Poista kohde
                                 </button>
                             </div>
-
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         </form>
 
                     </div>
@@ -72,19 +73,19 @@
                             <p class="base-heading-text pt-2">Yrityksen tuotteet</p>
                             {% for item in company_items %}
                                 <div class="bg-primary text-white p-2 my-5 rounded shadow-sm">
-                                    <p class="base-common-text py-1">Tuotteen nimi: <b
-                                            style="color: black">{{ item.name }}</b></p>
-                                    <p class="base-common-text py-1">Tuotetunnus = ID: <b
-                                            style="color: black">{{ item.id }}</b></p>
-                                    <p class="base-common-text py-1">Kohteen aktivointikoodi: <b
-                                            style="color: black">{{ item.activation_code }}</b></p>
+                                    <p class="base-common-text py-1">Tuotteen nimi: <strong
+                                            style="color: black">{{ item.name }}</strong></p>
+                                    <p class="base-common-text py-1">Tuotetunnus = ID: <strong
+                                            style="color: black">{{ item.id }}</strong></p>
+                                    <p class="base-common-text py-1">Kohteen aktivointikoodi: <strong
+                                            style="color: black">{{ item.activation_code }}</strong></p>
                                     {% if not item.user_id %}
                                         <p class="base-common-text py-1" style="color: black">Vapaa</p>
 
                                     {% endif %}
                                     {% if item.user_id %}
                                         <p class="base-common-text py-1" style="color:red">Käyttäjä numero:
-                                            <b>{{ item.user_id }}</b></p>
+                                            <strong>{{ item.user_id }}</strong></p>
 
                                     {% endif %}
 

@@ -24,6 +24,7 @@
                             <button type="submit" class="btn btn-danger btn-lg base-common-text" id="logout"
                                     name="submit-button" value="logout-button">Kirjautua ulos
                             </button>
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         </form>
                         <p class="base-common-text pt-1">Yrityksen nimi: {{ company_name }}</p>
                         <p class="base-common-text pt-1">Käyttäjän etunimi: {{ user_first_name }}</p>
@@ -50,7 +51,7 @@
                                         name="submit-button" value="activateitem-button" disabled>Aktivoi kohde
                                 </button>
                             </div>
-
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         </form>
 
                         <form method="post">
@@ -67,7 +68,7 @@
                                         name="submit-button" value="deactivateitem-button" disabled>Deaktivoi kohde
                                 </button>
                             </div>
-
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         </form>
 
                     </div>
@@ -78,10 +79,10 @@
                             {% for item in company_items %}
                                 {% if not item.user_id %}
                                     <div class="bg-primary text-white p-2 my-5 rounded shadow-sm">
-                                        <p class="base-common-text py-1">Tuotteen nimi: <b
-                                                style="color: black">{{ item.name }}</b></p>
-                                        <p class="base-common-text py-1">Tuotetunnus = ID: <b
-                                                style="color: black">{{ item.id }}</b></p>
+                                        <p class="base-common-text py-1">Tuotteen nimi: <strong
+                                                style="color: black">{{ item.name }}</strong></p>
+                                        <p class="base-common-text py-1">Tuotetunnus = ID: <strong
+                                                style="color: black">{{ item.id }}</strong></p>
                                     </div>
                                 {% endif %}
                             {% endfor %}
@@ -95,10 +96,10 @@
                             {% for item in company_items %}
                                 {% if  user_id == item.user_id %}
                                     <div class="bg-primary text-white p-2 my-5 rounded shadow-sm">
-                                        <p class="base-common-text py-1">Tuotteen nimi: <b
-                                                style="color: black">{{ item.name }}</b></p>
-                                        <p class="base-common-text py-1">Tuotetunnus = ID: <b
-                                                style="color: black">{{ item.id }}</b></p>
+                                        <p class="base-common-text py-1">Tuotteen nimi: <strong
+                                                style="color: black">{{ item.name }}</strong></p>
+                                        <p class="base-common-text py-1">Tuotetunnus = ID: <strong
+                                                style="color: black">{{ item.id }}</strong></p>
                                     </div>
                                 {% endif %}
 
