@@ -6,7 +6,6 @@ from datetime import datetime
 import exceptions as e
 import time
 from werkzeug.security import check_password_hash, generate_password_hash
-import string
 import random
 import jwt
 from time import time

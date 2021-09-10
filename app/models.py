@@ -1,4 +1,5 @@
 from __init__ import *
+from lib.codes import generate_code
 
 db.metadata.clear()
 
@@ -168,7 +169,7 @@ class Item(db.Model):
     def add(cls, name: str, company_id: int, photo: str = None):
         cls.validate_attrs(company_id=company_id)
         item = cls(name=name, photo=photo, company_id=company_id,
-                   activation_code=InviteCode.code_generator(size=10))
+                   activation_code=generate_code(size=10))
         db.session.add(item)
         db.session.commit()
         return item
@@ -218,13 +219,9 @@ class InviteCode(db.Model):
             return True
         return False
 
-    @staticmethod
-    def code_generator(size=6, chars=string.ascii_uppercase + string.digits):
-        return ''.join(random.choice(chars) for _ in range(size))
-
     @classmethod
     def add(cls, company_reg_number: str):
-        code = InviteCode(code=InviteCode.code_generator(),
+        code = InviteCode(code=generate_code(),
                           company_reg_number=company_reg_number)
         if cls.validate_attrs(reg_number=company_reg_number):
             raise e.CompanyExists
