@@ -32,7 +32,7 @@ function isAlNumeric(str) {
     if (!str) {
         return false;
     }
-    return /^[a-z0-9]+$/i.test(str);
+    return true;
 }
 
 function validateFirstName(forms) {
@@ -227,7 +227,6 @@ function make_handlers() {
                             }
                         }
                         form_handler.is_valid = val_cond;
-                        console.log(forms);
                         unlock_button(button_id);
                     });
                 } else {
