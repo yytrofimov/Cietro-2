@@ -1,16 +1,12 @@
-class UserEmailExists(Exception):
+class UserExists(Exception):
     pass
 
 
-class UserEmailDoesntExist(Exception):
+class UserDoesntExist(Exception):
     pass
 
 
 class UserIsBlocked(Exception):
-    pass
-
-
-class UserIdDoesntExist(Exception):
     pass
 
 
@@ -46,7 +42,7 @@ class IncorrectActivationCode(Exception):
     pass
 
 
-class NoEnoughRigths(Exception):
+class NoEnoughRights(Exception):
     pass
 
 

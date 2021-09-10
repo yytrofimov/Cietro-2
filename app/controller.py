@@ -14,17 +14,9 @@ def login():
         if request.form['submit-button'] == 'login-button':
             email = request.form.get('email')
             password = request.form.get('password')
-            try:
-                user = User.login(email=email, password=password)
-                login(user.id)
-                return after_login_redirect()
-            except e.UserEmailDoesntExist:
-                flash('Tiliä tällaisella postilla ei ole')
-            except e.IncorrectPassword:
-                flash('Väärä salasana')
-            except e.UserIsBlocked:
-                flash('Tili on estetty')
-            return (redirect(url_for('login')))
+            user = User.login(email=email, password=password)
+            login(user.id)
+            return after_login_redirect()
     else:
         if 'admin_id' in session or 'user_id' in session:
             return after_login_redirect()
@@ -39,18 +31,11 @@ def register():
             last_name = request.form.get('lastname')
             email = request.form.get('email')
             password = request.form.get('password')
-            company_id = request.form.get('companyid')
-            try:
-                user = User.register(first_name=first_name, last_name=last_name,
-                                     email=email, password=password, company_id=company_id)
-                login(user.id)
-                return after_login_redirect()
-            except e.UserEmailExists:
-                flash('Tällainen posti on jo rekisteröity')
-            except e.CompanyDoesntExist:
-                flash('Tällaista yritystä ei ole rekisteröity')
-            return redirect(url_for('register'))
-
+            company_id = int(request.form.get('companyid'))
+            user = User.register(first_name=first_name, last_name=last_name,
+                                 email=email, password=password, company_id=company_id)
+            login(user.id)
+            return after_login_redirect()
     else:
         return render_template('register.html')
 
@@ -61,30 +46,18 @@ def forgot_password():
         return render_template('forgot_password.html')
     else:
         email = request.form.get('email')
-        try:
-            mailer.send_password_reset_email(User.get(email=email))
-        except e.UserEmailDoesntExist:
-            pass
-        else:
-            flash(
-                'Jos tähän sähköpostiosoitteeseen on rekisteröity tili, lähetämme sähköpostin nollattavaksi')
-            return redirect(url_for('forgot_password'))
+        mailer.send_password_reset_email(User.get(email=email))
+        flash(
+            'Jos tähän sähköpostiosoitteeseen on rekisteröity tili, lähetämme sähköpostin nollattavaksi')
+        return redirect(url_for('forgot_password'))
 
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
-    try:
-        user = User.verify_reset_password_token(token)
-        session['user_id'] = user.id
-    except e.TokenExpired:
-        flash('Tunnus vanhentunut')
-        return redirect(url_for('forgot_password'))
-    except e.IncorrectToken:
-        flash('Virheellinen merkki')
-        return redirect(url_for('forgot_password'))
     if request.method == "GET":
         return render_template('reset_password.html')
     else:
+        user = User.verify_reset_password_token(token)
         password = request.form.get('password')
         user.set_password(new_password=password)
         logout()
@@ -94,11 +67,11 @@ def reset_password(token):
 
 @app.route('/profile', methods=['POST', 'GET'])
 def profile():
-    if 'admin_id' in session:
-        return (redirect(url_for('company')))
-    if 'user_id' not in session:
-        return (redirect(url_for('login')))
     if request.method == "GET":
+        if 'admin_id' in session:
+            return redirect(url_for('company'))
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
         user = User.get(id=session['user_id'])
         company = Company.get(id=user.company_id)
         render_data = {
@@ -115,35 +88,15 @@ def profile():
         if request.form['submit-button'] == 'logout-button':
             logout()
         if request.form['submit-button'] == 'deactivateitem-button':
-            item_id = request.form.get('itemid')
+            item_id = int(request.form.get('itemid'))
             item = Item.get(item_id)
-            if not item:
-                flash('No such item')
-                return (redirect(url_for('profile')))
-            try:
-                item.deactivate(session['user_id'])
-            except e.NoEnoughRigths:
-                flash('Ei oikeuksia')
-                return (redirect(url_for('profile')))
-            except e.ItemNotInUse:
-                flash('Tuote ei ole käytössä! Käytä vain sitä')
-                return (redirect(url_for('profile')))
+            item.deactivate(session['user_id'])
         if request.form['submit-button'] == 'activateitem-button':
-            item_id = request.form.get('itemid')
+            item_id = int(request.form.get('itemid'))
             activation_code = request.form.get('activationcode')
             item = Item.get(item_id)
-            if not item:
-                flash('Ei sellaista kohdetta')
-                return (redirect(url_for('profile')))
-            try:
-                item.activate(
-                    user_id=session['user_id'], activation_code=activation_code)
-            except e.ItemInUse:
-                flash('Tuote käytössä')
-                return (redirect(url_for('profile')))
-            except e.IncorrectActivationCode:
-                flash('Väärä aktivointikoodi')
-                return (redirect(url_for('profile')))
+            item.activate(
+                user_id=session['user_id'], activation_code=activation_code)
         return redirect(url_for('profile'))
 
 
@@ -160,20 +113,10 @@ def company_register():
             last_name = request.form.get('lastname')
             email = request.form.get('email')
             password = request.form.get('password')
-            try:
-                Company.validate_attrs(
-                    reg_number=company_reg_number, invite_code=invite_code)
-            except e.CompanyExists:
-                flash('Yritys on jo rekisteröity')
-                return redirect(url_for('company_register'))
-            except e.IncorrectInviteCode:
-                flash('Virheellinen kutsukoodi')
-                return redirect(url_for('company_register'))
-            try:
-                User.validate_attrs(email=email)
-            except e.UserEmailExists:
-                flash('Tällainen posti on jo rekisteröity')
-                return redirect(url_for('company_register'))
+            Company.validate_attrs(
+                reg_number=company_reg_number, invite_code=invite_code)
+
+            User.validate_attrs(email=email)
             company = Company.register(name=company_name, address=company_address,
                                        reg_number=company_reg_number, invite_code=invite_code)
             admin = User.register(first_name=first_name, last_name=last_name,
@@ -187,9 +130,9 @@ def company_register():
 
 @app.route('/company', methods=['POST', 'GET'])
 def company():
-    if "admin_id" not in session:
-        return (redirect(url_for('login')))
     if request.method == "GET":
+        if "admin_id" not in session:
+            return redirect(url_for('login'))
         admin = User.get(id=session['admin_id'])
         company = Company.get(id=admin.company_id)
         render_data = {
@@ -210,16 +153,9 @@ def company():
             item = Item.add(name=item_name, company_id=User.get(id=session['admin_id']).company_id)
             mailer.send_add_item_email(
                 item, User.get(id=session['admin_id']).email)
-
         if request.form['submit-button'] == 'deleteitem-button':
-            item_id = request.form.get('itemid')
-            try:
-                Item.delete(id=item_id)
-            except e.ItemDoesntExist:
-                flash('Kohdetta ei ole olemassa')
-            except e.ItemInUse:
-                flash('Tuote käytössä')
-                redirect(url_for('company'))
+            item_id = int(request.form.get('itemid'))
+            Item.delete(id=int(item_id))
         return redirect(url_for('company'))
 
 
@@ -248,17 +184,16 @@ def generate_invite_code():
     if request.method == "POST":
         code = InviteCode().add_code(
             company_reg_number=request.values['company_reg_number'])
-        if code:
-            message_subject = "Your invite code"
-            message_body = """\
-                Company registration number: {},
-                Company invitecode: {}""".format(code.company_reg_number, code.code)
-            mail.send_a_message(
-                request.values['email'], message_body=message_body, message_subject=message_subject)
+        message_subject = "Your invite code"
+        message_body = """\
+            Company registration number: {},
+            Company invitecode: {}""".format(code.company_reg_number, code.code)
+        mail.send_a_message(
+            request.values['email'], message_body=message_body, message_subject=message_subject)
         return "", 405
 
 
-def login(id):
+def login(id : int):
     user = User.get(id=id)
     if user:
         company = Company.get(id=user.company_id)
@@ -283,3 +218,8 @@ def after_login_redirect():
 
     elif 'admin_id' in session:
         return redirect(url_for('company'))
+
+
+@app.before_request
+def save_requested_url():
+    session['requested_url'] = request.base_url

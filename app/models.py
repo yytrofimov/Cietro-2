@@ -18,15 +18,20 @@ class User(db.Model):
 
     @classmethod
     @check_types
-    def validate_attrs(cls, email: str = None, company_id: str = None):
-        if email and cls.get(email=email):
-            raise e.UserEmailExists
+    def validate_attrs(cls, email: str = None, company_id: int = None):
+        if email:
+            try:
+                user = cls.get(email=email)
+                if user:
+                    raise e.UserExists
+            except e.UserDoesntExist:
+                pass
         if company_id and not Company.get(id=company_id):
             raise e.CompanyDoesntExist
 
     @classmethod
     @check_types
-    def register(cls, first_name: str, last_name: str, email: str, password: str, company_id: str):
+    def register(cls, first_name: str, last_name: str, email: str, password: str, company_id: int):
         cls.validate_attrs(email=email, company_id=company_id)
         password = generate_password_hash(password)
         user = cls(first_name=first_name, last_name=last_name,
@@ -39,8 +44,6 @@ class User(db.Model):
     @check_types
     def login(cls, email: str, password: str):
         user = cls.get(email=email)
-        if not user:
-            raise e.UserEmailDoesntExist
         if not check_password_hash(user.password, password):
             raise e.IncorrectPassword
         if not user.status:
@@ -58,8 +61,12 @@ class User(db.Model):
         user = None
         if email:
             user = cls.query.filter_by(email=email).first()
+            if not user:
+                raise e.UserDoesntExist
         if id:
             user = cls.query.filter_by(id=id).first()
+            if not user:
+                raise e.UserDoesntExist
         return user
 
     @property
@@ -85,13 +92,12 @@ class User(db.Model):
         except jwt.exceptions.ExpiredSignatureError:
             raise e.TokenExpired
         user = cls.get(id=id)
-        if not user:
-            raise e.IncorrectToken
         return user
 
     @classmethod
     @check_types
     def get_company_users(cls, id: int):
+        Company.get(id=id)
         return cls.query.filter_by(company_id=id).all()
 
 
@@ -109,15 +115,24 @@ class Company(db.Model):
         company = None
         if reg_number:
             company = cls.query.filter_by(reg_number=reg_number).first()
+            if not company:
+                raise e.CompanyDoesntExist
         if id:
             company = cls.query.filter_by(id=id).first()
+            if not company:
+                raise e.CompanyDoesntExist
         return company
 
     @classmethod
     @check_types
     def validate_attrs(cls, reg_number: str = None, invite_code: str = None):
-        if reg_number and cls.get(reg_number=reg_number):
-            raise e.CompanyExists
+        if reg_number:
+            try:
+                company = cls.get(reg_number=reg_number)
+                if company:
+                    raise e.CompanyExists
+            except e.CompanyDoesntExist:
+                pass
         if reg_number and invite_code and not InviteCode.validate_code(company_reg_number=reg_number, code=invite_code):
             raise e.IncorrectInviteCode
 
@@ -136,8 +151,8 @@ class Company(db.Model):
 
     @check_types
     def set_admin(self, id: int):
-        if User.get(id=id):
-            self.admin_id = id
+        User.get(id=id)
+        self.admin_id = id
         db.session.commit()
 
     @property
@@ -167,24 +182,28 @@ class Item(db.Model):
         item = None
         if id:
             item = cls.query.filter_by(id=id).first()
+            if not item:
+                raise e.ItemDoesntExist
         return item
 
     @classmethod
     @check_types
     def validate_attrs(cls, company_id: int = None, user_id: int = None):
-        if company_id and not Company.get(id=company_id):
-            raise e.CompanyDoesntExist
-        if user_id and not User.get(id=user_id):
-            raise e.UserIdDoesntExist
+        if company_id:
+            Company.get(id=company_id)
+        if user_id:
+            User.get(id=user_id)
 
     @classmethod
     @check_types
     def get_user_items(cls, id: int):
+        User.get(id=id)
         return cls.query.filter_by(user_id=id).all()
 
     @classmethod
     @check_types
     def get_company_items(cls, id: int):
+        Company.get(id=id)
         return cls.query.filter_by(company_id=id).all()
 
     @classmethod
@@ -211,7 +230,7 @@ class Item(db.Model):
         if not self.user_id:
             raise e.ItemNotInUse
         if not self.user_id == user_id:
-            raise e.NoEnoughRigths
+            raise e.NoEnoughRights
         self.user_id = 0
         db.session.commit()
 
@@ -219,8 +238,6 @@ class Item(db.Model):
     @check_types
     def delete(cls, id: int):
         item = cls.get(id=id)
-        if not item:
-            raise e.ItemDoesntExist
         if item.user_id:
             raise e.ItemInUse
         db.session.delete(item)
@@ -247,16 +264,14 @@ class InviteCode(db.Model):
     @check_types
     def validate_attrs(cls, reg_number: str = None):
         if reg_number and cls.query.filter_by(company_reg_number=reg_number).first():
-            return True
-        return False
+            raise e.CompanyExists
 
     @classmethod
     @check_types
     def add(cls, company_reg_number: str):
+        cls.validate_attrs(reg_number=company_reg_number)
         code = InviteCode(code=generate_code(),
                           company_reg_number=company_reg_number)
-        if cls.validate_attrs(reg_number=company_reg_number):
-            raise e.CompanyExists
         db.session.add(code)
         db.session.commit()
         return code
