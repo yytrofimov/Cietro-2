@@ -16,7 +16,7 @@ import qr
 from dotenv import load_dotenv
 import os
 import sys
-from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect, CSRFError
 
 load_dotenv('.env')
 
