@@ -215,8 +215,8 @@ class Item(db.Model):
         self.user_id = 0
         db.session.commit()
 
-    @check_types
     @classmethod
+    @check_types
     def delete(cls, id: int):
         item = cls.get(id=id)
         if not item:
