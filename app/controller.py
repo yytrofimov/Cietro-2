@@ -193,7 +193,7 @@ def generate_invite_code():
         return "", 405
 
 
-def login(id : int):
+def login(id: int):
     user = User.get(id=id)
     if user:
         company = Company.get(id=user.company_id)
@@ -223,3 +223,10 @@ def after_login_redirect():
 @app.before_request
 def save_requested_url():
     session['requested_url'] = request.base_url
+
+
+@app.after_request
+def apply_caching(response):
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    response.headers["HTTP-HEADER"] = "VALUE"
+    return response
