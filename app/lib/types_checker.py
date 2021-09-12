@@ -8,7 +8,8 @@ import exceptions as e
 def check_types(func, *args, **kwargs):
     def wrapper(*args, **kwargs):
         func_signature = str(inspect.signature(func)).strip('()')
-        args_order = list(_.split(': ')[0] for _ in func_signature.split(', '))
+        args_order = list(
+            _.split(': ')[0] for _ in func_signature.split(', ') if not (_.startswith('*') or _.startswith('**')))
         for arg_key, arg in zip(args_order, args):
             kwargs[arg_key] = arg
         annotations = func.__annotations__
@@ -31,3 +32,14 @@ def check_types(func, *args, **kwargs):
         return func(**kwargs)
 
     return wrapper
+
+
+if __name__ == '__main__':
+    class Foo:
+        @classmethod
+        @check_types
+        def bar(cls, a: str, b: int = None, c: list = None, *args, **kwargs):
+            print(a, b, c, args, kwargs)
+
+
+    Foo.bar(1, b=5, c=[1, 2, 3], aba=88)
