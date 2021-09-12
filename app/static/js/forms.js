@@ -60,6 +60,7 @@ function validateItemIdToActivate(forms) {
 function validateItemIdToDeactivate(forms) {
     return isNumeric(forms.itemidtodeactivate.data);
 }
+
 function validateItemIdToDelete(forms) {
     return isNumeric(forms.itemidtodelete.data);
 }
@@ -227,6 +228,19 @@ function make_handlers() {
                             }
                         }
                         form_handler.is_valid = val_cond;
+                        console.log(form, val_cond);
+                        if (val_cond) {
+                            form.classList.remove('wrong-validate');
+                            form.classList.add('right-validate');
+
+                        } else {
+                            form.classList.remove('right-validate');
+                            form.classList.add('wrong-validate');
+                        }
+                        if (form_handler.data == '') {
+                            form.classList.remove('right-validate');
+                            form.classList.remove('wrong-validate');
+                        }
                         unlock_button(button_id);
                     });
                 } else {
@@ -247,13 +261,9 @@ function unlock_button(button_id) {
     }
     let button = document.getElementById(button_id);
     if (button_cond) {
-        if (button.hasAttribute("disabled")) {
-            button.removeAttribute("disabled");
-        }
+        button.removeAttribute("disabled");
     } else {
-        if (!button.hasAttribute("disabled")) {
-            button.setAttribute("disabled", "disabled");
-        }
+        button.setAttribute("disabled", "disabled");
     }
 }
 

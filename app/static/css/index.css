@@ -1,0 +1,18 @@
+
+h1 {
+    text-align: center;
+    font-size: 2.5em;
+}
+
+h2 {
+    text-align: center;
+    color: #888;
+    font-size: 1.5em;
+}
+
+.index-title {
+    font-family: 'Raleway', sans-serif;
+    padding: 1em 2em;
+    color: #aaa;
+    min-height: 6em;
+}
