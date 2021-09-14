@@ -1,20 +1,34 @@
-from __init__ import *
-from app.lib import types_checker
 from lib.types_checker import check_types
 from lib.codes_generator import generate_code
+from pg_database import Base, SessionLocal
+from redis_database import PasswordReset
+from sqlalchemy import Table, Column, Integer, String, Text, ForeignKey
+from sqlalchemy.orm import relationship, scoped_session
+from werkzeug.security import check_password_hash, generate_password_hash
+import exceptions as e
+import string
 
-db.metadata.clear()
+db_session = scoped_session(SessionLocal)
+Base.query = db_session.query_property()
+
+users_roles = Table('users_roles', Base.metadata,
+                    Column('user_id', ForeignKey('user.id')),
+                    Column('role_id', ForeignKey('role.id'))
+                    )
 
 
-class User(db.Model):
+class User(Base):
     __tablename__ = "user"
-    id = db.Column(db.Integer(), primary_key=True)
-    first_name = db.Column(db.Text())
-    last_name = db.Column(db.Text())
-    email = db.Column(db.String(64), unique=True)
-    password = db.Column(db.Text())
-    company_id = db.Column(db.Integer())
-    status = db.Column(db.Integer())
+    id = Column(Integer(), primary_key=True)
+    first_name = Column(Text())
+    last_name = Column(Text())
+    email = Column(String(64), unique=True)
+    password = Column(Text())
+    company_id = Column(Integer())
+    status = Column(Integer())
+    roles = relationship("Role",
+                         secondary=users_roles,
+                         backref="parents")
 
     @classmethod
     @check_types
@@ -31,13 +45,13 @@ class User(db.Model):
 
     @classmethod
     @check_types
-    def register(cls, first_name: str, last_name: str, email: str, password: str, company_id: int):
+    def register(cls, first_name: str, last_name: str, email: str, password: str, company_id: int, status: int):
         cls.validate_attrs(email=email, company_id=company_id)
         password = generate_password_hash(password)
         user = cls(first_name=first_name, last_name=last_name,
-                   email=email, password=password, company_id=company_id, status=1)
-        db.session.add(user)
-        db.session.commit()
+                   email=email, password=password, company_id=company_id, status=status)
+        db_session.add(user)
+        db_session.commit()
         return user
 
     @classmethod
@@ -45,7 +59,7 @@ class User(db.Model):
     def login(cls, email: str, password: str):
         user = cls.get(email=email)
         if not check_password_hash(user.password, password):
-            raise e.IncorrectPassword
+            raise e.PasswordIsIncorrect
         if not user.status:
             raise e.UserIsBlocked
         return user
@@ -53,7 +67,7 @@ class User(db.Model):
     @check_types
     def set_password(self, new_password: str):
         self.password = generate_password_hash(new_password)
-        db.session.commit()
+        db_session.commit()
 
     @classmethod
     @check_types
@@ -77,21 +91,17 @@ class User(db.Model):
         return "\n".join(
             str(_) for _ in [self.id, self.first_name, self.last_name, self.email, self.company_id, self.status])
 
-    @check_types
-    def get_reset_password_token(self, expires_in: int = 600):
-        return jwt.encode(
-            {'reset_password': self.id, 'exp': time() + expires_in},
-            Config.SECRET_KEY, algorithm='HS256')
+    def get_reset_password_token(self):
+        if PasswordReset.check_requests_by_email(self.email):
+            raise e.TokenIsAlreadyRequested
+        token = generate_code(size=256, chars=string.ascii_uppercase + string.digits + string.ascii_lowercase)
+        PasswordReset.save_user_token(token=token, user_id=self.id)
+        return token
 
     @classmethod
     @check_types
     def verify_reset_password_token(cls, token: str):
-        try:
-            id = jwt.decode(token, Config.SECRET_KEY,
-                            algorithms=['HS256'])['reset_password']
-        except jwt.exceptions.ExpiredSignatureError:
-            raise e.TokenExpired
-        user = cls.get(id=id)
+        user = cls.get(id=PasswordReset.check_token(token))
         return user
 
     @classmethod
@@ -101,13 +111,19 @@ class User(db.Model):
         return cls.query.filter_by(company_id=id).all()
 
 
-class Company(db.Model):
+class Role(Base):
+    __tablename__ = "role"
+    id = Column(Integer(), primary_key=True)
+    name = Column(Integer(), unique=True)
+
+
+class Company(Base):
     __tablename__ = 'company'
-    id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.Text())
-    address = db.Column(db.Text())
-    reg_number = db.Column(db.Text(), unique=True)
-    admin_id = db.Column(db.Integer())
+    id = Column(Integer(), primary_key=True)
+    name = Column(Text())
+    address = Column(Text())
+    reg_number = Column(Text(), unique=True)
+    admin_id = Column(Integer())
 
     @classmethod
     @check_types
@@ -134,7 +150,7 @@ class Company(db.Model):
             except e.CompanyDoesntExist:
                 pass
         if reg_number and invite_code and not InviteCode.validate_code(company_reg_number=reg_number, code=invite_code):
-            raise e.IncorrectInviteCode
+            raise e.InviteCodeIsIncorrect
 
     def __str__(self):
         return "\n".join(str(_) for _ in [self.id, self.name, self.address, self.reg_number, self.admin_id])
@@ -145,15 +161,15 @@ class Company(db.Model):
         cls.validate_attrs(reg_number=reg_number, invite_code=invite_code)
         company = Company(name=name, address=address,
                           reg_number=reg_number)
-        db.session.add(company)
-        db.session.commit()
+        db_session.add(company)
+        db_session.commit()
         return company
 
     @check_types
     def set_admin(self, id: int):
         User.get(id=id)
         self.admin_id = id
-        db.session.commit()
+        db_session.commit()
 
     @property
     def items(self):
@@ -164,14 +180,14 @@ class Company(db.Model):
         return User.get_company_users(self.id)
 
 
-class Item(db.Model):
+class Item(Base):
     __tablename__ = 'item'
-    id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.Text())
-    user_id = db.Column(db.Integer())
-    photo = db.Column(db.Text())
-    company_id = db.Column(db.Integer())
-    activation_code = db.Column(db.Text())
+    id = Column(Integer(), primary_key=True)
+    name = Column(Text())
+    user_id = Column(Integer())
+    photo = Column(Text())
+    company_id = Column(Integer())
+    activation_code = Column(Text())
 
     def __str__(self):
         return "\n".join(str(_) for _ in [self.id, self.name, self.user_id, self.company_id])
@@ -212,8 +228,8 @@ class Item(db.Model):
         cls.validate_attrs(company_id=company_id)
         item = cls(name=name, photo=photo, company_id=company_id,
                    activation_code=generate_code(size=10))
-        db.session.add(item)
-        db.session.commit()
+        db_session.add(item)
+        db_session.commit()
         return item
 
     @check_types
@@ -221,9 +237,9 @@ class Item(db.Model):
         if self.user_id:
             raise e.ItemInUse
         if not activation_code == self.activation_code:
-            raise e.IncorrectActivationCode
+            raise e.ActivationCodeIsIncorrect
         self.user_id = user_id
-        db.session.commit()
+        db_session.commit()
 
     @check_types
     def deactivate(self, user_id: int):
@@ -232,7 +248,7 @@ class Item(db.Model):
         if not self.user_id == user_id:
             raise e.NoEnoughRights
         self.user_id = 0
-        db.session.commit()
+        db_session.commit()
 
     @classmethod
     @check_types
@@ -240,15 +256,15 @@ class Item(db.Model):
         item = cls.get(id=id)
         if item.user_id:
             raise e.ItemInUse
-        db.session.delete(item)
-        db.session.commit()
+        db_session.delete(item)
+        db_session.commit()
 
 
-class InviteCode(db.Model):
-    __tablename__ = 'invitecode'
-    id = db.Column(db.Integer(), primary_key=True)
-    company_reg_number = db.Column(db.Text(), unique=True)
-    code = db.Column(db.Text())
+class InviteCode(Base):
+    __tablename__ = 'invite_code'
+    id = Column(Integer(), primary_key=True)
+    company_reg_number = Column(Text(), unique=True)
+    code = Column(Text())
 
     def __str__(self):
         return "\n".join(str(_) for _ in [self.id, self.company_reg_number])
@@ -272,12 +288,8 @@ class InviteCode(db.Model):
         cls.validate_attrs(reg_number=company_reg_number)
         code = InviteCode(code=generate_code(),
                           company_reg_number=company_reg_number)
-        db.session.add(code)
-        db.session.commit()
+        db_session.add(code)
+        db_session.commit()
         return code
 
-
-db.create_all()
-
-if __name__ == "__main__":
-    pass
+# Base.metadata.create_all(engine)

@@ -1,8 +1,8 @@
 import inspect
-import sys
 
-sys.path.insert(0, '../')
-import exceptions as e
+
+class WrongType(Exception):
+    pass
 
 
 def check_types(func, *args, **kwargs):
@@ -23,7 +23,7 @@ def check_types(func, *args, **kwargs):
                     key in defaults and kwarg != defaults[key] or key not in defaults) and not isinstance(kwarg,
                                                                                                           annotations[
                                                                                                               key]):
-                raise e.WrongType(
+                raise WrongType(
                     '{} arg should be instance of {}. Given value: {} is instance of {}'.format(key,
                                                                                                 annotations[
                                                                                                     key],
@@ -32,14 +32,3 @@ def check_types(func, *args, **kwargs):
         return func(**kwargs)
 
     return wrapper
-
-
-if __name__ == '__main__':
-    class Foo:
-        @classmethod
-        @check_types
-        def bar(cls, a: str, b: int = None, c: list = None, *args, **kwargs):
-            print(a, b, c, args, kwargs)
-
-
-    Foo.bar(1, b=5, c=[1, 2, 3], aba=88)

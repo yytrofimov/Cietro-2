@@ -1,5 +1,6 @@
-from __init__ import *
-from errors import *
+from lib import mail_generator
+from app import app, mail
+from flask import redirect, flash, render_template, session, request, url_for
 from models import *
 
 
@@ -33,7 +34,7 @@ def register():
             password = request.form.get('password')
             company_id = int(request.form.get('companyid'))
             user = User.register(first_name=first_name, last_name=last_name,
-                                 email=email, password=password, company_id=company_id)
+                                 email=email, password=password, company_id=company_id, status=1)
             login(user.id)
             return after_login_redirect()
     else:
@@ -46,22 +47,32 @@ def forgot_password():
         return render_template('forgot_password.html')
     else:
         email = request.form.get('email')
-        mailer.send_password_reset_email(User.get(email=email))
+        if PasswordReset.check_requests_by_email(email=email):
+            raise e.TokenIsAlreadyRequested
+        try:
+            user = User.get(email=email)
+            msg = mail_generator.get_password_reset_email(token=user.get_reset_password_token(),
+                                                          recipient_email=user.email)
+            mail.send(msg)
+        except e.UserDoesntExist:
+            pass
         flash(
             'Jos tähän sähköpostiosoitteeseen on rekisteröity tili, lähetämme sähköpostin nollattavaksi')
+        PasswordReset.save_user_email(email)
         return redirect(url_for('forgot_password'))
 
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
+    user = User.verify_reset_password_token(token)
     if request.method == "GET":
         return render_template('reset_password.html')
     else:
-        user = User.verify_reset_password_token(token)
         password = request.form.get('password')
         user.set_password(new_password=password)
         logout()
         flash('Salasanasi on palautettu!')
+        PasswordReset.delete_token(token)
         return redirect(url_for('login'))
 
 
@@ -151,8 +162,9 @@ def company():
         if request.form['submit-button'] == 'additem-button':
             item_name = request.form.get('itemname')
             item = Item.add(name=item_name, company_id=User.get(id=session['admin_id']).company_id)
-            mailer.send_add_item_email(
+            msg = mail_generator.get_add_item_email(
                 item, User.get(id=session['admin_id']).email)
+            mail.send(msg)
         if request.form['submit-button'] == 'deleteitem-button':
             item_id = int(request.form.get('itemid'))
             Item.delete(id=int(item_id))
@@ -177,20 +189,6 @@ def privacy():
 @app.route('/feedback')
 def feedback():
     return render_template('feedback.html')
-
-
-@app.route('/generate_invite_code', methods=['POST'])
-def generate_invite_code():
-    if request.method == "POST":
-        code = InviteCode().add_code(
-            company_reg_number=request.values['company_reg_number'])
-        message_subject = "Your invite code"
-        message_body = """\
-            Company registration number: {},
-            Company invitecode: {}""".format(code.company_reg_number, code.code)
-        mail.send_a_message(
-            request.values['email'], message_body=message_body, message_subject=message_subject)
-        return "", 405
 
 
 def login(id: int):

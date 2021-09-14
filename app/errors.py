@@ -1,4 +1,8 @@
-from __init__ import *
+from flask import redirect, flash, render_template, session, url_for
+from app import app
+import exceptions as e
+from flask_wtf.csrf import CSRFError
+from lib.types_checker import WrongType
 
 
 @app.errorhandler(404)
@@ -12,13 +16,13 @@ def handle_csrf(e):
 
 
 @app.errorhandler(e.UserDoesntExist)
-def handle_user_email_doesnt_exist(e):
-    flash('TKäyttäjää ei ole olemassa')
+def handle_user_doesnt_exist(e):
+    flash('Käyttäjää ei ole olemassa')
     return redirect(session['requested_url'])
 
 
-@app.errorhandler(e.IncorrectPassword)
-def handle_user_incorrect_password(e):
+@app.errorhandler(e.PasswordIsIncorrect)
+def handle_password_is_incorrect(e):
     flash('Väärä salasana')
     return redirect(session['requested_url'])
 
@@ -38,13 +42,19 @@ def handle_company_doesnt_exist(e):
 @app.errorhandler(e.TokenExpired)
 def handle_token_expired(e):
     flash('Tunnus vanhentunut')
-    return redirect(session['requested_url'])
+    return redirect(url_for('forgot_password'))
 
 
-@app.errorhandler(e.IncorrectToken)
-def handle_incorrect_token(e):
+@app.errorhandler(e.TokenIsIncorrect)
+def handle_token_is_incorrect(e):
     flash('Virheellinen merkki')
-    return redirect(session['requested_url'])
+    return redirect(url_for('forgot_password'))
+
+
+@app.errorhandler(e.TokenIsAlreadyRequested)
+def handle_token_is_already_requested(e):
+    flash('Olet jo pyytänyt! Tarkista saapuneet. Pyyntö voidaan lähettää 5 minuutin välein')
+    return redirect(url_for('forgot_password'))
 
 
 @app.errorhandler(e.NoEnoughRights)
@@ -65,8 +75,8 @@ def handle_item_in_use(e):
     return redirect(session['requested_url'])
 
 
-@app.errorhandler(e.IncorrectActivationCode)
-def handle_incorrect_activation_code(e):
+@app.errorhandler(e.ActivationCodeIsIncorrect)
+def handle_activation_code_in_incorrect(e):
     flash('Väärä aktivointikoodi')
     return redirect(session['requested_url'])
 
@@ -77,8 +87,8 @@ def handle_company_exists(e):
     return redirect(session['requested_url'])
 
 
-@app.errorhandler(e.IncorrectInviteCode)
-def handle_incorrect_invite_code(e):
+@app.errorhandler(e.InviteCodeIsIncorrect)
+def handle_invite_code_is_incorrect(e):
     flash('Virheellinen kutsukoodi')
     return redirect(session['requested_url'])
 
@@ -89,7 +99,7 @@ def handle_item_doesnt_exist(e):
     return redirect(session['requested_url'])
 
 
-@app.errorhandler(e.WrongType)
-def handle_item_doesnt_exist(e):
+@app.errorhandler(WrongType)
+def handle_wrong_type(e):
     flash('Syötetty virheellisiä tietoja')
     return redirect(session['requested_url'])

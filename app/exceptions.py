@@ -18,15 +18,11 @@ class CompanyExists(Exception):
     pass
 
 
-class IncorrectPassword(Exception):
+class PasswordIsIncorrect(Exception):
     pass
 
 
-class IncorrectInviteCode(Exception):
-    pass
-
-
-class IncorrectToken(Exception):
+class InviteCodeIsIncorrect(Exception):
     pass
 
 
@@ -38,7 +34,7 @@ class ItemInUse(Exception):
     pass
 
 
-class IncorrectActivationCode(Exception):
+class ActivationCodeIsIncorrect(Exception):
     pass
 
 
@@ -54,5 +50,9 @@ class TokenExpired(Exception):
     pass
 
 
-class WrongType(Exception):
+class TokenIsAlreadyRequested(Exception):
+    pass
+
+
+class TokenIsIncorrect(Exception):
     pass

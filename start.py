@@ -1,9 +1,7 @@
-import sys
+from app import app
 import os
+from dotenv import load_dotenv
 
-sys.path.insert(0, './app/')
+load_dotenv('.env')
 
-if __name__ == '__main__':
-    import __init__
-
-    __init__.app.run(host=os.environ.get('HOST'), debug=os.environ.get('DEBUG'), port=os.environ.get('PORT'))
+app.run(host=os.environ.get("HOST"), port=os.environ.get("PORT"), debug=os.environ.get("DEBUG"), use_reloader=False)

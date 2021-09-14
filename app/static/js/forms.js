@@ -82,7 +82,7 @@ function validateCompanyAddress(forms) {
 }
 
 function validateCompanyRegNumber(forms) {
-    return isAlNumeric(forms.companyaddress.data);
+    return isAlNumeric(forms.companyregnumber.data);
 }
 
 function validateInviteCode(forms) {
