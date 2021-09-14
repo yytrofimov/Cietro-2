@@ -131,7 +131,7 @@ def company_register():
             company = Company.register(name=company_name, address=company_address,
                                        reg_number=company_reg_number, invite_code=invite_code)
             admin = User.register(first_name=first_name, last_name=last_name,
-                                  email=email, password=password, company_id=company.id)
+                                  email=email, password=password, company_id=company.id, status=1)
             company.set_admin(admin.id)
             login(admin.id)
             return after_login_redirect()
