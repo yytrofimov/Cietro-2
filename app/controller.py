@@ -47,24 +47,25 @@ def forgot_password():
         return render_template('forgot_password.html')
     else:
         email = request.form.get('email')
-        if PasswordReset.check_requests_by_email(email=email):
+        if PasswordReset.check_attempts_by_email(email):
             raise e.TokenIsAlreadyRequested
+        PasswordReset.save_user_email(email)
         try:
             user = User.get(email=email)
-            msg = mail_generator.get_password_reset_email(token=user.get_reset_password_token(),
-                                                          recipient_email=user.email)
+            msg = mail_generator.get_password_reset_email(
+                token=PasswordReset.get_user_token(id=user.id),
+                recipient_email=user.email)
             mail.send(msg)
         except e.UserDoesntExist:
             pass
         flash(
             'Jos tähän sähköpostiosoitteeseen on rekisteröity tili, lähetämme sähköpostin nollattavaksi')
-        PasswordReset.save_user_email(email)
         return redirect(url_for('forgot_password'))
 
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
-    user = User.verify_reset_password_token(token)
+    user = PasswordReset.verify_user_token(token)
     if request.method == "GET":
         return render_template('reset_password.html')
     else:
@@ -72,7 +73,7 @@ def reset_password(token):
         user.set_password(new_password=password)
         logout()
         flash('Salasanasi on palautettu!')
-        PasswordReset.delete_token(token)
+        PasswordReset.delete_user_token(token)
         return redirect(url_for('login'))
 
 

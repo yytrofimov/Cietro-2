@@ -1,15 +1,16 @@
 from lib.types_checker import check_types
 from lib.codes_generator import generate_code
 from pg_database import Base, SessionLocal
-from redis_database import PasswordReset
+from redis_database import redis_db
 from sqlalchemy import Table, Column, Integer, String, Text, ForeignKey
 from sqlalchemy.orm import relationship, scoped_session
 from werkzeug.security import check_password_hash, generate_password_hash
 import exceptions as e
 import string
+from datetime import timedelta, datetime
 
-db_session = scoped_session(SessionLocal)
-Base.query = db_session.query_property()
+postgre_db = scoped_session(SessionLocal)
+Base.query = postgre_db.query_property()
 
 users_roles = Table('users_roles', Base.metadata,
                     Column('user_id', ForeignKey('user.id')),
@@ -50,8 +51,8 @@ class User(Base):
         password = generate_password_hash(password)
         user = cls(first_name=first_name, last_name=last_name,
                    email=email, password=password, company_id=company_id, status=status)
-        db_session.add(user)
-        db_session.commit()
+        postgre_db.add(user)
+        postgre_db.commit()
         return user
 
     @classmethod
@@ -67,7 +68,7 @@ class User(Base):
     @check_types
     def set_password(self, new_password: str):
         self.password = generate_password_hash(new_password)
-        db_session.commit()
+        postgre_db.commit()
 
     @classmethod
     @check_types
@@ -90,19 +91,6 @@ class User(Base):
     def __str__(self):
         return "\n".join(
             str(_) for _ in [self.id, self.first_name, self.last_name, self.email, self.company_id, self.status])
-
-    def get_reset_password_token(self):
-        if PasswordReset.check_requests_by_email(self.email):
-            raise e.TokenIsAlreadyRequested
-        token = generate_code(size=256, chars=string.ascii_uppercase + string.digits + string.ascii_lowercase)
-        PasswordReset.save_user_token(token=token, user_id=self.id)
-        return token
-
-    @classmethod
-    @check_types
-    def verify_reset_password_token(cls, token: str):
-        user = cls.get(id=PasswordReset.check_token(token))
-        return user
 
     @classmethod
     @check_types
@@ -161,15 +149,15 @@ class Company(Base):
         cls.validate_attrs(reg_number=reg_number, invite_code=invite_code)
         company = Company(name=name, address=address,
                           reg_number=reg_number)
-        db_session.add(company)
-        db_session.commit()
+        postgre_db.add(company)
+        postgre_db.commit()
         return company
 
     @check_types
     def set_admin(self, id: int):
         User.get(id=id)
         self.admin_id = id
-        db_session.commit()
+        postgre_db.commit()
 
     @property
     def items(self):
@@ -228,8 +216,8 @@ class Item(Base):
         cls.validate_attrs(company_id=company_id)
         item = cls(name=name, photo=photo, company_id=company_id,
                    activation_code=generate_code(size=10))
-        db_session.add(item)
-        db_session.commit()
+        postgre_db.add(item)
+        postgre_db.commit()
         return item
 
     @check_types
@@ -239,7 +227,7 @@ class Item(Base):
         if not activation_code == self.activation_code:
             raise e.ActivationCodeIsIncorrect
         self.user_id = user_id
-        db_session.commit()
+        postgre_db.commit()
 
     @check_types
     def deactivate(self, user_id: int):
@@ -248,7 +236,7 @@ class Item(Base):
         if not self.user_id == user_id:
             raise e.NoEnoughRights
         self.user_id = 0
-        db_session.commit()
+        postgre_db.commit()
 
     @classmethod
     @check_types
@@ -256,8 +244,8 @@ class Item(Base):
         item = cls.get(id=id)
         if item.user_id:
             raise e.ItemInUse
-        db_session.delete(item)
-        db_session.commit()
+        postgre_db.delete(item)
+        postgre_db.commit()
 
 
 class InviteCode(Base):
@@ -288,8 +276,47 @@ class InviteCode(Base):
         cls.validate_attrs(reg_number=company_reg_number)
         code = InviteCode(code=generate_code(),
                           company_reg_number=company_reg_number)
-        db_session.add(code)
-        db_session.commit()
+        postgre_db.add(code)
+        postgre_db.commit()
         return code
+
+
+class PasswordReset:
+
+    @classmethod
+    @check_types
+    def get_user_token(cls, id: int):
+        token = generate_code(size=256, chars=string.ascii_uppercase + string.digits + string.ascii_lowercase)
+        redis_db.setex(token, timedelta(minutes=5), id)
+        return token
+
+    @classmethod
+    @check_types
+    def verify_user_token(cls, token: str):
+        user = User.get(id=cls.check_user_token(token))
+        return user
+
+    @staticmethod
+    @check_types
+    def check_attempts_by_email(email: str):
+        return True if redis_db.get(email) else False
+
+    @staticmethod
+    @check_types
+    def save_user_email(email: str):
+        redis_db.setex(email, timedelta(minutes=5), "datetime.now().strftime('%Y-%m-%d')")
+
+    @staticmethod
+    @check_types
+    def check_user_token(token: str):
+        user_id = redis_db.get(token)
+        if not user_id:
+            raise e.TokenIsIncorrect
+        return int(user_id)
+
+    @staticmethod
+    @check_types
+    def delete_user_token(token: str):
+        redis_db.delete(token)
 
 # Base.metadata.create_all(engine)

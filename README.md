@@ -6,10 +6,11 @@ For now, regular workers can register themselves using a **company ID**. The bas
 
 
 # ToDo
-
-- The task assumes the presence of an ios application that performs the same function. Having two applications performing the same role allows communication with a common database. Now **all communication takes place in models**, but it will be moved to a separate **RESTFull API**.
+- **Gunicorn** as a WSGI server will be added
+- **nginx** as a common HTTP server will be added
+- Data in Redis DB in unstructured, so changes are on the way
+- The task assumes the presence of an iOS application that performs the same function. Having two applications performing the same role allows communication with a common database. Now **all communication takes place in models**, but it will be moved to a separate **RESTFull API**.
 - The structure will be redone using **Flask Blueprints**.
-- At least the .env file template will be added to the repo someday.
 - A custom JS validator ( **forms** ) has been written on the user's side, but it will either be rewritten or replaced with third-party solutions, because the resulting solution was written in a hurry and turned out to be "crooked".
 - Currently, there are only two user roles - Administrator and Worker. We need an implementation of the administrator of the entire site ( **Root user** ), with the ability to see and do absolutely everything, a **Support Worker**, with the ability to add companies, local company administrators.
 - The implementation of **mailing** on behalf of the company will be placed in a separate API or in a subprocess, because now, according to the processing time of the password recovery link request, you can search for registered users' mails.
