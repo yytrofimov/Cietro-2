@@ -1,6 +1,17 @@
-# CIERTO-2 Project (Yrkesinstitutet Prakticum PU20H)
+# CIERTO-2
 
-Here I will present a description of the test task: this project provides companies, for example, construction or repair companies, with convenient management of the use of their equipment. A certain company has equipment and employees who will use this equipment.
+## Stack
+
+* Python Flask + gunicorn
+* Own validator on vanilla JS
+* Python SQLAlchemy ORM + PostgreSQL
+* Redis DB (tokens store)
+* (Bonus) Poetry like a dependencies storage
+
+## Description
+The project was done as a homework assignment in the 2nd year of the Computer Science course at [Practicum](https://github.com/orgs/prakticum2k). The project was done as an *educational* one.
+
+This project provides companies, for example, construction or repair companies, with convenient management of the use of their equipment. A certain company has equipment and employees who will use this equipment.
 A company can start using the CIERTO-2 management completely remotely - either receive an invite code remotely after paying for services, or in the office. The company is registered using a personal invite code - it is tied to the company's identification number. The company is assigned an Administrator. Its basic capabilities are to remove and **add equipment**, **delete equipment**, as well as see **who is using what equipment at the moment**.
 For now, regular workers can register themselves using a **company ID**. The basic capabilities of a worker are to see the company's **free equipment**, start using = **activate** the equipment through the **activation code** that is indicated on the equipment itself, and **deactivate** the equipment.
 
