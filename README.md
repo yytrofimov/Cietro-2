@@ -1,12 +1,12 @@
-# CIERTO-2
+# CIERTO-2 - Flask + SqlAlchemy, NO API web app
 
 ## Stack
 
 * Python Flask + gunicorn
-* Own validator on vanilla JS
+* Custom validator on vanilla JS
 * Python SQLAlchemy ORM + PostgreSQL
-* Redis DB (tokens store)
-* (Bonus) Poetry like a dependencies storage
+* Custom tokens generating (insted of JWS): Redis DB to store tokens
+* (Bonus) Using of Poetry :)
 
 ## Description
 The project was done as a homework assignment in the 2nd year of the Computer Science course at [Practicum](https://github.com/orgs/prakticum2k). The project was done as an *educational* one.
